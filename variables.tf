@@ -21,30 +21,6 @@ EOT
     subscription_name       = string
     description             = optional(string)
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.automation_connection_classic_certificates : (
-        can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", v.subscription_id))
-      )
-    ])
-    error_message = "must be a valid UUID"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.automation_connection_classic_certificates : (
-        length(v.subscription_name) > 0
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.automation_connection_classic_certificates : (
-        length(v.certificate_asset_name) > 0
-      )
-    ])
-    error_message = "must not be empty"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_automation_connection_classic_certificate's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
@@ -69,5 +45,14 @@ EOT
   #   source:    [from resourcegroups.ValidateName] !matched
   # path: automation_account_name
   #   source:    validate.AutomationAccount: no recognizable `if ... { errors = append(...) }` pattern - read it by hand
+  # path: subscription_id
+  #   condition: can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", value))
+  #   message:   must be a valid UUID
+  # path: subscription_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
+  # path: certificate_asset_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
 }
 
